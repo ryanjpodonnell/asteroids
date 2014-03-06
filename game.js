@@ -70,6 +70,9 @@
   };
 
   Game.prototype.fireBullet = function() {
+    if (this.bullets.length > 10) {
+      return;
+    }
     var bullet = this.ship.fireBullet(this);
     if(bullet){
       this.bullets.push(bullet);
