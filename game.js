@@ -5,6 +5,7 @@
     this.ship = new Asteroids.Ship([(Game.DIM_X/2),(Game.DIM_Y/2)], [0,0]);
     this.ctx = canvas.getContext("2d");
     this.asteroids = [];
+    this.bullets = [];
   };
 
   Game.FPS = 30;
@@ -24,12 +25,18 @@
     this.asteroids.forEach(function(asteroid) {
       asteroid.draw(that.ctx)
     });
+    this.bullets.forEach(function(bullet) {
+      bullet.draw(that.ctx);
+    });
     this.ship.draw(this.ctx);
   };
 
   Game.prototype.move = function() {
     this.asteroids.forEach(function(asteroid) {
       asteroid.move();
+    });
+    this.bullets.forEach(function(bullet) {
+      bullet.move();
     });
     this.ship.move();
   }
@@ -45,23 +52,45 @@
     this.move();
     this.draw();
     this.checkCollisions();
+    for(var i=0; i<this.bullets.length; i++){
+      var removeBullet = this.bullets[i].hitAsteroids(this);
+      if (removeBullet) {
+        this.removeBullet(i)
+      }
+    }
+
   };
 
   Game.prototype.checkCollisions = function() {
     for(var i=0; i<this.asteroids.length; i++){
       if(this.ship.isCollideWith(this.asteroids[i])){
         this.asteroids[i].color = "red"
-
       }
     }
   };
 
+  Game.prototype.fireBullet = function() {
+    var bullet = this.ship.fireBullet(this);
+    if(bullet){
+      this.bullets.push(bullet);
+    }
+  }
+
   Game.prototype.bindKeyHandlers = function(){
     var that = this;
+    key('space', function() {that.fireBullet();});
     key('up',    function() {that.ship.power([ 0, -1]);});
     key('down',  function() {that.ship.power([ 0,  1]);});
     key('left',  function() {that.ship.power([-1,  0]);});
     key('right', function() {that.ship.power([ 1,  0]);});
+  };
+
+  Game.prototype.removeAsteroid = function(idx) {
+    this.asteroids.splice(idx, 1);
+  };
+
+  Game.prototype.removeBullet = function(idx) {
+    this.bullets.splice(idx, 1);
   };
 
 })(this);
